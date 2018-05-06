@@ -196,6 +196,7 @@
     <Compile Include="Renderers\IShellFlyoutRenderer.cs" />
     <Compile Include="Renderers\IShellItemRenderer.cs" />
     <Compile Include="Renderers\IShellObservableFragment.cs" />
+    <Compile Include="Renderers\IShellSearchView.cs" />
     <Compile Include="Renderers\IToolbarButton.cs" />
     <Compile Include="Renderers\KeyboardExtensions.cs" />
     <Compile Include="AppCompat\PickerRenderer.cs" />
@@ -213,6 +214,7 @@
     <Compile Include="Renderers\ShellNavigationFragment.cs" />
     <Compile Include="Renderers\ShellPageContainer.cs" />
     <Compile Include="Renderers\ShellRenderer.cs" />
+    <Compile Include="Renderers\ShellSearchView.cs" />
     <Compile Include="Renderers\ShellToolbarTracker.cs" />
     <Compile Include="Renderers\StreamImagesourceHandler.cs" />
     <Compile Include="Renderers\ToolbarButton.cs" />
@@ -308,7 +310,6 @@
       <Name>Xamarin.Forms.Platform.Android.FormsViewGroup</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
     <AndroidResource Include="Resources\Layout\ShellContent.axml">

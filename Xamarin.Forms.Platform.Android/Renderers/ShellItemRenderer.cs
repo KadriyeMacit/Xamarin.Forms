@@ -58,7 +58,7 @@ namespace Xamarin.Forms.Platform.Android
 		private AView _rootView = null;
 		private ViewPager _viewPager;
 		private IShellContext _shellContext;
-		private ShellToolbarTracker _toolbarTracker;
+		private IShellToolbarTracker _toolbarTracker;
 
 		public ShellItemRenderer(IShellContext shellContext)
 		{
@@ -107,7 +107,7 @@ namespace Xamarin.Forms.Platform.Android
 			var currentPage = ((IShellTabItemController)shellItem.CurrentItem).GetOrCreateContent();
 			var currentIndex = ShellItem.Items.IndexOf(ShellItem.CurrentItem);
 
-			_toolbarTracker = new ShellToolbarTracker(_shellContext, _toolbar, _shellContext.CurrentDrawerLayout);
+			_toolbarTracker = _shellContext.CreateTrackerForToolbar(_toolbar);
 			_toolbarTracker.Page = currentPage;
 
 			_viewPager.CurrentItem = currentIndex;

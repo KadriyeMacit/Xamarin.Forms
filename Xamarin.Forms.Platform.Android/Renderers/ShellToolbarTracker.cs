@@ -10,10 +10,12 @@ using System.ComponentModel;
 using ActionBarDrawerToggle = Android.Support.V7.App.ActionBarDrawerToggle;
 using AView = Android.Views.View;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
+using LP = Android.Views.ViewGroup.LayoutParams;
+using R = Android.Resource;
 
 namespace Xamarin.Forms.Platform.Android
 {
-	public class ShellToolbarTracker : Java.Lang.Object, AView.IOnClickListener, IDisposable
+	public class ShellToolbarTracker : Java.Lang.Object, AView.IOnClickListener, IShellToolbarTracker
 	{
 		private bool _canNavigateBack;
 		private bool _disposed;
@@ -22,6 +24,7 @@ namespace Xamarin.Forms.Platform.Android
 		private Page _page;
 		private IShellContext _shellContext;
 		private Toolbar _toolbar;
+		private IShellSearchView _searchView;
 
 		public ShellToolbarTracker(IShellContext shellContext, Toolbar toolbar, DrawerLayout drawerLayout)
 		{
@@ -57,7 +60,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		void AView.IOnClickListener.OnClick(AView v)
 		{
-			OnDrawerToggleClicked();
+			OnNavigateBack();
 		}
 
 		protected override void Dispose(bool disposing)
@@ -78,7 +81,7 @@ namespace Xamarin.Forms.Platform.Android
 			}
 		}
 
-		protected virtual void OnDrawerToggleClicked()
+		protected virtual void OnNavigateBack()
 		{
 			Page.Navigation.PopAsync();
 		}
@@ -121,7 +124,7 @@ namespace Xamarin.Forms.Platform.Android
 			if (_drawerToggle == null)
 			{
 				_drawerToggle = new ActionBarDrawerToggle((Activity)context, drawerLayout, toolbar,
-					global::Android.Resource.String.Ok, global::Android.Resource.String.Ok)
+					R.String.Ok, R.String.Ok)
 				{
 					ToolbarNavigationClickListener = this,
 				};
@@ -162,6 +165,11 @@ namespace Xamarin.Forms.Platform.Android
 			_toolbar.Title = page.Title;
 		}
 
+		protected virtual IShellSearchView GetSearchView (Context context)
+		{
+			return new ShellSearchView(context);
+		}
+
 		protected virtual void UpdateToolbarItems(Toolbar toolbar, Page page)
 		{
 			var menu = toolbar.Menu;
@@ -175,6 +183,35 @@ namespace Xamarin.Forms.Platform.Android
 				menuitem.SetShowAsAction(ShowAsAction.Always);
 				menuitem.SetOnMenuItemClickListener(new GenericMenuClickListener(item.Activate));
 			}
+
+			var searchHandler = Shell.GetSearchHandler(page);
+			if (searchHandler != null)
+			{
+				var item = menu.Add(new Java.Lang.String(searchHandler.Placeholder));
+				item.SetIcon(Resource.Drawable.abc_ic_search_api_material);
+				item.SetShowAsAction(ShowAsAction.IfRoom | ShowAsAction.CollapseActionView);
+				var context = _shellContext.AndroidContext;
+
+				var searchView = _searchView = GetSearchView(context);
+				searchView.Placeholder = searchHandler.Placeholder;
+				searchView.Query = searchHandler.Query;
+				searchView.SetClearImage(searchHandler.ClearIcon);
+				searchView.SetSearchImage(searchHandler.QueryIcon);
+				searchView.SetClearPlaceholderImage(searchHandler.ClearPlaceholderIcon);
+
+				searchView.LoadView();
+
+				searchView.View.LayoutParameters = new LP(LP.MatchParent, LP.MatchParent);
+				item.SetActionView(searchView.View);
+
+				searchView.SearchPressed += OnSearchConfirmed;
+			}
+		}
+
+		protected virtual void OnSearchConfirmed(object sender, EventArgs e)
+		{
+			_toolbar.CollapseActionView();
+			_searchView.Query = "";
 		}
 
 		private void UpdateLeftBarButtonItem()

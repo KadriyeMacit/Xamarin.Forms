@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using AView = Android.Views.View;
 using LP = Android.Views.ViewGroup.LayoutParams;
+using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -80,6 +81,11 @@ namespace Xamarin.Forms.Platform.Android
 		IShellItemRenderer IShellContext.CreateShellItemRenderer()
 		{
 			return CreateShellItemRenderer();
+		}
+
+		IShellToolbarTracker IShellContext.CreateTrackerForToolbar(Toolbar toolbar)
+		{
+			return CreateTrackerForToolbar(toolbar);
 		}
 
 		// This is very bad, FIXME.
@@ -168,6 +174,11 @@ namespace Xamarin.Forms.Platform.Android
 		protected virtual IShellItemRenderer CreateShellItemRenderer()
 		{
 			return new ShellNavigationFragment(this);
+		}
+
+		protected virtual IShellToolbarTracker CreateTrackerForToolbar(Toolbar toolbar)
+		{
+			return new ShellToolbarTracker(this, toolbar, ((IShellContext)this).CurrentDrawerLayout);
 		}
 
 		private async void GoTo(ShellItem item, ShellTabItem tab)

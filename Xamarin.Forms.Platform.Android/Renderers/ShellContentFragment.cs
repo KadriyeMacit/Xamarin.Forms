@@ -13,6 +13,7 @@ using Android.Support.V7.Widget;
 
 namespace Xamarin.Forms.Platform.Android
 {
+
 	public class ShellContentFragment : Fragment, AndroidAnimation.IAnimationListener, IShellObservableFragment
 	{
 		private Page _page;
@@ -21,7 +22,7 @@ namespace Xamarin.Forms.Platform.Android
 		private readonly IShellContext _shellContext;
 		private ShellTabItem _shellTabItem;
 		private ShellPageContainer _shellPageContainer;
-		private ShellToolbarTracker _toolbarTracker;
+		private IShellToolbarTracker _toolbarTracker;
 
 		public ShellContentFragment(IShellContext shellContext, ShellTabItem shellTabItem)
 		{
@@ -76,7 +77,7 @@ namespace Xamarin.Forms.Platform.Android
 
 			scrollview.AddView(_shellPageContainer);
 
-			_toolbarTracker = new ShellToolbarTracker(_shellContext, toolbar, _shellContext.CurrentDrawerLayout);
+			_toolbarTracker = _shellContext.CreateTrackerForToolbar(toolbar);
 			_toolbarTracker.Page = _page;
 			// this is probably not the most ideal way to do that
 			_toolbarTracker.CanNavigateBack = _shellTabItem == null;
