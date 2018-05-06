@@ -197,6 +197,7 @@
     <Compile Include="Renderers\IShellItemRenderer.cs" />
     <Compile Include="Renderers\IShellObservableFragment.cs" />
     <Compile Include="Renderers\IShellSearchView.cs" />
+    <Compile Include="Renderers\IShellToolbarTracker.cs" />
     <Compile Include="Renderers\IToolbarButton.cs" />
     <Compile Include="Renderers\KeyboardExtensions.cs" />
     <Compile Include="AppCompat\PickerRenderer.cs" />
