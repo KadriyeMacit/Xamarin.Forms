@@ -216,6 +216,7 @@
     <Compile Include="Renderers\ShellPageContainer.cs" />
     <Compile Include="Renderers\ShellRenderer.cs" />
     <Compile Include="Renderers\ShellSearchView.cs" />
+    <Compile Include="Renderers\ShellSearchViewAdapter.cs" />
     <Compile Include="Renderers\ShellToolbarTracker.cs" />
     <Compile Include="Renderers\StreamImagesourceHandler.cs" />
     <Compile Include="Renderers\ToolbarButton.cs" />

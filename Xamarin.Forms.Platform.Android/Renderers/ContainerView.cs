@@ -12,6 +12,8 @@ namespace Xamarin.Forms.Platform.Android
 		private View _view;
 		private IVisualElementRenderer _renderer;
 
+		public View View => _view;
+
 		public ContainerView(Context context, View view) : base(context)
 		{
 			_context = context;

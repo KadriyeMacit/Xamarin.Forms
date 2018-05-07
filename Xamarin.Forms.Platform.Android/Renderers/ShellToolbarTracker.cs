@@ -28,9 +28,9 @@ namespace Xamarin.Forms.Platform.Android
 
 		public ShellToolbarTracker(IShellContext shellContext, Toolbar toolbar, DrawerLayout drawerLayout)
 		{
-			_shellContext = shellContext;
-			_toolbar = toolbar;
-			_drawerLayout = drawerLayout;
+			_shellContext = shellContext ?? throw new ArgumentNullException(nameof(shellContext));
+			_toolbar = toolbar ?? throw new ArgumentNullException(nameof(toolbar));
+			_drawerLayout = drawerLayout ?? throw new ArgumentNullException(nameof(drawerLayout));
 		}
 
 		public bool CanNavigateBack
@@ -167,7 +167,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		protected virtual IShellSearchView GetSearchView (Context context)
 		{
-			return new ShellSearchView(context);
+			return new ShellSearchView(context, _shellContext);
 		}
 
 		protected virtual void UpdateToolbarItems(Toolbar toolbar, Page page)
@@ -193,25 +193,20 @@ namespace Xamarin.Forms.Platform.Android
 				var context = _shellContext.AndroidContext;
 
 				var searchView = _searchView = GetSearchView(context);
-				searchView.Placeholder = searchHandler.Placeholder;
-				searchView.Query = searchHandler.Query;
-				searchView.SetClearImage(searchHandler.ClearIcon);
-				searchView.SetSearchImage(searchHandler.QueryIcon);
-				searchView.SetClearPlaceholderImage(searchHandler.ClearPlaceholderIcon);
+				searchView.SearchHandler = searchHandler;
 
 				searchView.LoadView();
 
 				searchView.View.LayoutParameters = new LP(LP.MatchParent, LP.MatchParent);
 				item.SetActionView(searchView.View);
 
-				searchView.SearchPressed += OnSearchConfirmed;
+				searchView.SearchConfirmed += OnSearchConfirmed;
 			}
 		}
 
 		protected virtual void OnSearchConfirmed(object sender, EventArgs e)
 		{
 			_toolbar.CollapseActionView();
-			_searchView.Query = "";
 		}
 
 		private void UpdateLeftBarButtonItem()
