@@ -7,5 +7,7 @@ namespace Xamarin.Forms.Platform.Android
 		Page Page { get; set; }
 
 		bool CanNavigateBack { get; set; }
+
+		Color TintColor { get; set; }
 	}
 }

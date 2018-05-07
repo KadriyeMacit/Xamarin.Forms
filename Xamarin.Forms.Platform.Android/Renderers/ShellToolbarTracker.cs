@@ -12,6 +12,7 @@ using AView = Android.Views.View;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 using LP = Android.Views.ViewGroup.LayoutParams;
 using R = Android.Resource;
+using Android.Graphics;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -25,6 +26,7 @@ namespace Xamarin.Forms.Platform.Android
 		private IShellContext _shellContext;
 		private Toolbar _toolbar;
 		private IShellSearchView _searchView;
+		private Color _tintColor = Color.Default;
 
 		public ShellToolbarTracker(IShellContext shellContext, Toolbar toolbar, DrawerLayout drawerLayout)
 		{
@@ -55,6 +57,20 @@ namespace Xamarin.Forms.Platform.Android
 				var oldPage = _page;
 				_page = value;
 				OnPageChanged(oldPage, _page);
+			}
+		}
+
+		public Color TintColor
+		{
+			get { return _tintColor; }
+			set
+			{
+				_tintColor = value;
+				if (Page != null)
+				{
+					UpdateToolbarItems();
+					UpdateLeftBarButtonItem();
+				}
 			}
 		}
 
@@ -135,12 +151,14 @@ namespace Xamarin.Forms.Platform.Android
 			{
 				_drawerToggle.DrawerIndicatorEnabled = false;
 				var icon = new DrawerArrowDrawable(activity.SupportActionBar.ThemedContext);
+				icon.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
 				icon.Progress = 1;
 				toolbar.NavigationIcon = icon;
 			}
 			else
 			{
 				toolbar.NavigationIcon = null;
+				_drawerToggle.DrawerArrowDrawable.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
 				_drawerToggle.DrawerIndicatorEnabled = true;
 			}
 			_drawerToggle.SyncState();
@@ -152,6 +170,8 @@ namespace Xamarin.Forms.Platform.Android
 			if (!string.IsNullOrEmpty(icon))
 			{
 				Drawable iconDrawable = context.GetFormsDrawable(icon);
+				if (!TintColor.IsDefault)
+					iconDrawable.SetColorFilter(TintColor.ToAndroid(), PorterDuff.Mode.SrcAtop);
 				if (iconDrawable != null)
 				{
 					menuItem.SetIcon(iconDrawable);
@@ -165,7 +185,7 @@ namespace Xamarin.Forms.Platform.Android
 			_toolbar.Title = page.Title;
 		}
 
-		protected virtual IShellSearchView GetSearchView (Context context)
+		protected virtual IShellSearchView GetSearchView(Context context)
 		{
 			return new ShellSearchView(context, _shellContext);
 		}
@@ -189,6 +209,7 @@ namespace Xamarin.Forms.Platform.Android
 			{
 				var item = menu.Add(new Java.Lang.String(searchHandler.Placeholder));
 				item.SetIcon(Resource.Drawable.abc_ic_search_api_material);
+				item.Icon.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
 				item.SetShowAsAction(ShowAsAction.IfRoom | ShowAsAction.CollapseActionView);
 				var context = _shellContext.AndroidContext;
 

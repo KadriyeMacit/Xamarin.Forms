@@ -41,7 +41,7 @@
 	<ShellItem Route="home"  Title="Home" Icon="calculator.png" GroupBehavior="ShowTabs">
 		<ShellTabItem Route="updates"  Title="Updates" Icon="coffee.png" Content="Foo"  ContentTemplate="{DataTemplate local:ShellContent}">
 			<ShellItem.ShellAppearance>
-				<ShellAppearance ForegroundColor="#ff0000" BackgroundColor="#224477ff" UnselectedColor="#99ffff00" TitleColor="#00ff00" />
+				<ShellAppearance ForegroundColor="#ff0000" BackgroundColor="#77FF77ff" UnselectedColor="#99ffff00" TitleColor="#00ff00" />
 			</ShellItem.ShellAppearance>
 		</ShellTabItem>
 		<ShellTabItem Route="games"  Title="Games" Icon="coffee.png">

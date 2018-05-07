@@ -13,7 +13,12 @@ using LP = Android.Views.ViewGroup.LayoutParams;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 using Fragment = Android.Support.V4.App.Fragment;
 using ActionBarDrawerToggle = Android.Support.V7.App.ActionBarDrawerToggle;
+using R = Android.Resource;
 using System.Linq;
+using Android.Util;
+using Android.Graphics.Drawables;
+using Android.Graphics;
+using Android.Content.Res;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -113,6 +118,9 @@ namespace Xamarin.Forms.Platform.Android
 			_viewPager.CurrentItem = currentIndex;
 			scrollview.AddView(_viewPager);
 
+			var appearance = ShellItemController.CurrentShellAppearance;
+			if (appearance != null)
+				ApplyAppearance(appearance);
 
 			return _rootView = root;
 		}
@@ -127,24 +135,38 @@ namespace Xamarin.Forms.Platform.Android
 				ResetAppearance();
 		}
 
+		private Color _defaultBackgroundColor = Color.FromRgb(33, 150, 243);
+		private Color _defaultForegroundColor = Color.White;
+		private Color _defaultTitleColor = Color.White;
+		private Color _defaultUnselectedColor = Color.FromRgba(255, 255, 255, 180);
+
 		protected virtual void ApplyAppearance(ShellAppearance appearance)
 		{
 			var foreground = appearance.ForegroundColor;
 			var background = appearance.BackgroundColor;
-			var disabledColor = appearance.DisabledColor; //unused currently
 			var titleColor = appearance.TitleColor;
 			var unselectedColor = appearance.UnselectedColor;
 
-			var titleArgb = titleColor.ToAndroid(Color.White).ToArgb();
-			var unselectedArgb = unselectedColor.ToAndroid(Color.White).ToArgb();
-			
-			_toolbar.SetTitleTextColor(titleArgb);
-			_tablayout.SetTabTextColors(titleArgb, unselectedArgb);
+			SetColors(foreground, background, titleColor, unselectedColor);
 		}
 
 		protected virtual void ResetAppearance()
 		{
-			// no idea what to do here for some of this shit
+			SetColors(_defaultForegroundColor, _defaultBackgroundColor, _defaultTitleColor, _defaultUnselectedColor);
+		}
+
+		private void SetColors(Color foreground, Color background, Color title, Color unselected)
+		{
+			var titleArgb = title.ToAndroid(_defaultTitleColor).ToArgb();
+			var unselectedArgb = unselected.ToAndroid(_defaultUnselectedColor).ToArgb();
+
+			_toolbar.SetTitleTextColor(titleArgb);
+			_tablayout.SetTabTextColors(unselectedArgb, titleArgb);
+
+			_toolbar.SetBackground(new ColorDrawable (background.ToAndroid(_defaultBackgroundColor)));
+			_tablayout.SetBackground(new ColorDrawable (background.ToAndroid(_defaultBackgroundColor)));
+
+			_toolbarTracker.TintColor = foreground.IsDefault ? _defaultForegroundColor : foreground;
 		}
 
 		void HookEvents ()

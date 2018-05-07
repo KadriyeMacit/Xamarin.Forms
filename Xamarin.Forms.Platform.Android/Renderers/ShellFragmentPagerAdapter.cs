@@ -1,6 +1,8 @@
-﻿using Android.OS;
+﻿using Android.Database;
+using Android.OS;
 using Android.Support.V4.App;
 using Java.Lang;
+using System.Collections.Specialized;
 using Xamarin.Forms.Platform.Android.AppCompat;
 
 namespace Xamarin.Forms.Platform.Android
@@ -13,6 +15,12 @@ namespace Xamarin.Forms.Platform.Android
 		public ShellFragmentPagerAdapter(ShellItem shellitem, FragmentManager fragmentManager) : base(fragmentManager)
 		{
 			_shellitem = shellitem;
+			((INotifyCollectionChanged)shellitem.Items).CollectionChanged += OnItemsCollectionChanged;
+		}
+
+		protected virtual void OnItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			NotifyDataSetChanged();
 		}
 
 		public int CountOverride { get; set; }
@@ -57,6 +65,7 @@ namespace Xamarin.Forms.Platform.Android
 			base.Dispose(disposing);
 			if (disposing && !_disposed)
 			{
+				((INotifyCollectionChanged)_shellitem.Items).CollectionChanged -= OnItemsCollectionChanged;
 				_shellitem = null;
 				_disposed = true;
 

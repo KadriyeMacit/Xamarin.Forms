@@ -14,7 +14,7 @@ using LP = Android.Views.ViewGroup.LayoutParams;
 
 namespace Xamarin.Forms.Platform.Android
 {
-	public class ShellSearchView : CardView, IShellSearchView, TextView.IOnEditorActionListener
+	public class ShellSearchView : FrameLayout, IShellSearchView, TextView.IOnEditorActionListener
 	{
 		#region IShellSearchView
 
@@ -40,6 +40,7 @@ namespace Xamarin.Forms.Platform.Android
 		#endregion IShellSearchView
 
 		private readonly IShellContext _shellContext;
+		private CardView _cardView;
 		private ImageButton _clearButton;
 		private ImageButton _clearPlaceholderButton;
 		private ImageButton _searchButton;
@@ -81,11 +82,16 @@ namespace Xamarin.Forms.Platform.Android
 			var placeholder = searchHandler.Placeholder;
 
 			var context = Context;
+			_cardView = new CardView(context);
+			_cardView.LayoutParameters = new LayoutParams(LP.MatchParent, LP.MatchParent);
+
 			var linearLayout = new LinearLayout(context)
 			{
 				LayoutParameters = new LP(LP.MatchParent, LP.MatchParent),
 				Orientation = Orientation.Horizontal
 			};
+
+			_cardView.AddView(linearLayout);
 
 			int padding = (int)context.ToPixels(8);
 
@@ -127,7 +133,7 @@ namespace Xamarin.Forms.Platform.Android
 			_clearPlaceholderButton.Click += OnClearPlaceholderButtonClicked;
 			_searchButton.Click += OnSearchButtonClicked;
 
-			AddView(linearLayout);
+			AddView(_cardView);
 		}
 
 		protected override async void OnAttachedToWindow()
@@ -157,6 +163,7 @@ namespace Xamarin.Forms.Platform.Android
 		protected override void OnLayout(bool changed, int left, int top, int right, int bottom)
 		{
 			var width = right - left;
+			width -= (int)Context.ToPixels(25);
 			var height = bottom - top;
 			for (int i = 0; i < ChildCount; i++)
 			{
@@ -167,12 +174,13 @@ namespace Xamarin.Forms.Platform.Android
 			}
 
 			_textBlock.DropDownHorizontalOffset = -_textBlock.Left;
-			_textBlock.DropDownVerticalOffset = -(int)Math.Ceiling(Radius);
-			_textBlock.DropDownWidth = right - left;
+			_textBlock.DropDownVerticalOffset = -(int)Math.Ceiling(_cardView.Radius);
+			_textBlock.DropDownWidth = width;
 		}
 
 		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
+			base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
 			var measureWidth = MeasureSpecFactory.GetSize(widthMeasureSpec);
 			var measureHeight = MeasureSpecFactory.GetSize(heightMeasureSpec);
 
