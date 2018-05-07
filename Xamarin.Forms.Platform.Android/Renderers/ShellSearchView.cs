@@ -1,5 +1,6 @@
 ﻿using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.InputMethods;
@@ -7,6 +8,7 @@ using Android.Widget;
 using System;
 using System.Threading.Tasks;
 using Xamarin.Forms.Internals;
+using AColor = Android.Graphics.Color;
 using AView = Android.Views.View;
 using LP = Android.Views.ViewGroup.LayoutParams;
 
@@ -37,11 +39,11 @@ namespace Xamarin.Forms.Platform.Android
 
 		#endregion IShellSearchView
 
+		private readonly IShellContext _shellContext;
 		private ImageButton _clearButton;
 		private ImageButton _clearPlaceholderButton;
 		private ImageButton _searchButton;
-		private AutoCompleteTextView _textBlock;
-		private readonly IShellContext _shellContext;
+		private AppCompatAutoCompleteTextView _textBlock;
 
 		public ShellSearchView(Context context, IShellContext shellContext) : base(context)
 		{
@@ -89,7 +91,7 @@ namespace Xamarin.Forms.Platform.Android
 
 			_searchButton = CreateImageButton(context, searchImage, Resource.Drawable.abc_ic_search_api_material, padding, 0);
 
-			_textBlock = new AutoCompleteTextView(context)
+			_textBlock = new AppCompatAutoCompleteTextView(context)
 			{
 				LayoutParameters = new LinearLayout.LayoutParams(0, LP.MatchParent)
 				{
@@ -106,6 +108,7 @@ namespace Xamarin.Forms.Platform.Android
 			_textBlock.Threshold = 1;
 			_textBlock.Adapter = new ShellSearchViewAdapter(SearchHandler, _shellContext);
 			_textBlock.ItemClick += OnTextBlockItemClicked;
+			_textBlock.SetDropDownBackgroundDrawable(new ClipDrawableWrapper(_textBlock.DropDownBackground));
 
 			_clearButton = CreateImageButton(context, clearImage, Resource.Drawable.abc_ic_clear_material, 0, padding);
 			_clearPlaceholderButton = CreateImageButton(context, clearPlaceholderImage, -1, 0, padding);
@@ -125,17 +128,6 @@ namespace Xamarin.Forms.Platform.Android
 			_searchButton.Click += OnSearchButtonClicked;
 
 			AddView(linearLayout);
-		}
-
-		private void OnTextBlockItemClicked(object sender, AdapterView.ItemClickEventArgs e)
-		{
-			var index = e.Position;
-			var item = Controller.ListProxy[index];
-
-			_textBlock.Text = "";
-			_textBlock.HideKeyboard();
-			SearchConfirmed?.Invoke(this, EventArgs.Empty);
-			Controller.ItemSelected(item);
 		}
 
 		protected override async void OnAttachedToWindow()
@@ -173,6 +165,10 @@ namespace Xamarin.Forms.Platform.Android
 							  MeasureSpecFactory.MakeMeasureSpec(height, MeasureSpecMode.Exactly));
 				child.Layout(0, 0, width, height);
 			}
+
+			_textBlock.DropDownHorizontalOffset = -_textBlock.Left;
+			_textBlock.DropDownVerticalOffset = -(int)Math.Ceiling(Radius);
+			_textBlock.DropDownWidth = right - left;
 		}
 
 		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -199,7 +195,7 @@ namespace Xamarin.Forms.Platform.Android
 			UpdateClearButtonState();
 
 			SearchHandler.SetValueCore(SearchHandler.QueryProperty, text);
-			
+
 			if (SearchHandler.ShowsResults)
 			{
 				if (string.IsNullOrEmpty(text))
@@ -246,6 +242,17 @@ namespace Xamarin.Forms.Platform.Android
 			UpdateClearButtonState();
 		}
 
+		private void OnTextBlockItemClicked(object sender, AdapterView.ItemClickEventArgs e)
+		{
+			var index = e.Position;
+			var item = Controller.ListProxy[index];
+
+			_textBlock.Text = "";
+			_textBlock.HideKeyboard();
+			SearchConfirmed?.Invoke(this, EventArgs.Empty);
+			Controller.ItemSelected(item);
+		}
+
 		private async void SetImage(ImageButton button, ImageSource image, int defaultValue)
 		{
 			if (image != null)
@@ -270,6 +277,57 @@ namespace Xamarin.Forms.Platform.Android
 			{
 				_clearPlaceholderButton.Visibility = ViewStates.Gone;
 				_clearButton.Visibility = ViewStates.Visible;
+			}
+		}
+
+		private class ClipDrawableWrapper : DrawableWrapper
+		{
+			public ClipDrawableWrapper(Drawable dr) : base(dr)
+			{
+			}
+
+			public override void Draw(Canvas canvas)
+			{
+				base.Draw(canvas);
+
+				// Step 1: Clip out the top shadow that was drawn as it wont look right when ligned up
+				var paint = new Paint();
+				paint.Color = AColor.Black;
+				paint.SetXfermode(new PorterDuffXfermode(PorterDuff.Mode.Clear));
+
+				canvas.DrawRect(0, -100, canvas.Width, 0, paint);
+
+				// Step 2: Draw separator line
+
+				paint = new Paint();
+				paint.Color = AColor.LightGray;
+				canvas.DrawLine(0, 0, canvas.Width, 0, paint);
+			}
+		}
+
+		private class TestDrawable : Drawable
+		{
+			public override int Opacity => 0;
+
+			public override void Draw(Canvas canvas)
+			{
+				var width = Bounds.Width();
+				var height = Bounds.Height();
+				var paint = new Paint();
+				paint.Color = Color.White.ToAndroid();
+
+				canvas.DrawRect(0, 0, width, height, paint);
+
+				paint.Color = AColor.LightGray;
+				canvas.DrawLine(0, 0, width, 0, paint);
+			}
+
+			public override void SetAlpha(int alpha)
+			{
+			}
+
+			public override void SetColorFilter(ColorFilter colorFilter)
+			{
 			}
 		}
 	}

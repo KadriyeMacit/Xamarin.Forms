@@ -20,6 +20,7 @@ namespace Xamarin.Forms.Controls
 			public MySearchHandler()
 			{
 				ShowsResults = true;
+				Placeholder = "Search Me";
 			}
 
 			protected override void OnQueryChanged(string oldValue, string newValue)
