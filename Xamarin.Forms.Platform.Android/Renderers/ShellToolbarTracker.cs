@@ -13,6 +13,7 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 using LP = Android.Views.ViewGroup.LayoutParams;
 using R = Android.Resource;
 using Android.Graphics;
+using Android.Support.V7.Widget;
 
 namespace Xamarin.Forms.Platform.Android
 {
@@ -86,10 +87,14 @@ namespace Xamarin.Forms.Platform.Android
 				if (disposing)
 				{
 					_drawerToggle.Dispose();
+					_searchView.View.ViewAttachedToWindow -= OnSearchViewAttachedToWindow;
+					_searchView.SearchConfirmed -= OnSearchConfirmed;
+					_searchView.Dispose();
 				}
 
 				_shellContext = null;
 				_drawerToggle = null;
+				_searchView = null;
 				Page = null;
 				_toolbar = null;
 				_drawerLayout = null;
@@ -207,21 +212,45 @@ namespace Xamarin.Forms.Platform.Android
 			var searchHandler = Shell.GetSearchHandler(page);
 			if (searchHandler != null)
 			{
+				if (_searchView != null)
+				{
+					_searchView.View.ViewAttachedToWindow -= OnSearchViewAttachedToWindow;
+					_searchView.SearchConfirmed -= OnSearchConfirmed;
+					_searchView.Dispose();
+				}
 				var item = menu.Add(new Java.Lang.String(searchHandler.Placeholder));
 				item.SetIcon(Resource.Drawable.abc_ic_search_api_material);
 				item.Icon.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
 				item.SetShowAsAction(ShowAsAction.IfRoom | ShowAsAction.CollapseActionView);
 				var context = _shellContext.AndroidContext;
 
-				var searchView = _searchView = GetSearchView(context);
-				searchView.SearchHandler = searchHandler;
+				_searchView = GetSearchView(context);
+				_searchView.SearchHandler = searchHandler;
 
-				searchView.LoadView();
+				_searchView.LoadView();
+				_searchView.View.ViewAttachedToWindow += OnSearchViewAttachedToWindow;
 
-				searchView.View.LayoutParameters = new LP(LP.MatchParent, LP.MatchParent);
-				item.SetActionView(searchView.View);
+				_searchView.View.LayoutParameters = new LP(LP.MatchParent, LP.MatchParent);
+				item.SetActionView(_searchView.View);
 
-				searchView.SearchConfirmed += OnSearchConfirmed;
+				_searchView.SearchConfirmed += OnSearchConfirmed;
+			}
+		}
+
+		private void OnSearchViewAttachedToWindow(object sender, AView.ViewAttachedToWindowEventArgs e)
+		{
+			for (int i = 0; i < _toolbar.ChildCount; i++)
+			{
+				var child = _toolbar.GetChildAt(i);
+				if (child is AppCompatImageButton button)
+				{
+					// we want the newly added button which will need layout
+					if (child.IsLayoutRequested)
+					{
+						button.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
+					}
+
+				}
 			}
 		}
 
