@@ -175,8 +175,7 @@ namespace Xamarin.Forms.Platform.Android
 			if (!string.IsNullOrEmpty(icon))
 			{
 				Drawable iconDrawable = context.GetFormsDrawable(icon);
-				if (!TintColor.IsDefault)
-					iconDrawable.SetColorFilter(TintColor.ToAndroid(), PorterDuff.Mode.SrcAtop);
+				iconDrawable.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
 				if (iconDrawable != null)
 				{
 					menuItem.SetIcon(iconDrawable);

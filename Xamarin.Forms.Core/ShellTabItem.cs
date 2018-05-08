@@ -214,13 +214,13 @@ namespace Xamarin.Forms
 
 		protected virtual void OnInsertPageBefore(Page page, Page before)
 		{
-			var index = _navStack.IndexOf(page);
+			var index = _navStack.IndexOf(before);
 			if (index == -1)
 				throw new ArgumentException("Page not found in nav stack");
 
 			var args = new NavigationRequestedEventArgs(page, before, false)
 			{
-				RequestType = NavigationRequestType.PopToRoot
+				RequestType = NavigationRequestType.Insert
 			};
 			_navStack.Insert(index, page);
 			((IShellItemController)ShellItem).CurrentItemNavigationChanged();

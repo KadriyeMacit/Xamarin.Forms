@@ -44,6 +44,7 @@
 				<ShellAppearance ForegroundColor="#ff0000" BackgroundColor="#77FF77ff" UnselectedColor="#99ffff00" TitleColor="#00ff00" />
 			</ShellItem.ShellAppearance>
 		</ShellTabItem>
+		<ShellTabItem Route="derp"  Title="Updates 2" Icon="coffee.png" Content="Foo"  ContentTemplate="{DataTemplate local:ShellContent}" />
 		<ShellTabItem Route="games"  Title="Games" Icon="coffee.png">
 			<ShellTabItem.MenuItems>
 				<MenuItem Text="Game Options" Icon="3bar.png" />

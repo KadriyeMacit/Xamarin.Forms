@@ -12,15 +12,17 @@
 	<!--<Shell.SearchHandler>
 		<SearchHandler Placeholder="My Placeholder!" />
 	</Shell.SearchHandler>-->
-    <StackLayout>
-		<Button x:Name="_toggleButton"  Margin="0, 40, 0, 0"  HorizontalOptions="Center"  Text="Toggle" BackgroundColor="Red" />
-        <Label x:Name="_mainLabel"  Text="Welcome to Xamarin.Forms!"
-            VerticalOptions="CenterAndExpand" 
-            HorizontalOptions="Center" />
-		<Button x:Name="_queryButton" HorizontalOptions="Center"  Text="Query Navigate" BackgroundColor="Red" />
-		<Button x:Name="_navButton" HorizontalOptions="Center"  Text="URI Navigate" BackgroundColor="Red" />
-		<Button x:Name="_popToRootButton" HorizontalOptions="Center"  Text="Pop To Root" BackgroundColor="Red" />
-		<Button x:Name="_popButton" HorizontalOptions="Center"  Text="Pop page" BackgroundColor="Red" />
-		<Button x:Name="_pushButton" Margin="0, 0, 0, 30" HorizontalOptions="Center"  Text="Push page" BackgroundColor="Red" />
-	</StackLayout>
+	<ScrollView>
+		<StackLayout Margin="0, 40, 0, 30">
+			<Label  x:Name="_mainLabel"       HorizontalOptions="Center" Text="Hello World!" />
+			<Button x:Name="_toggleButton"    HorizontalOptions="Center" Text="Toggle Flyout" />
+			<Button x:Name="_queryButton"     HorizontalOptions="Center" Text="Query Navigate" />
+			<Button x:Name="_navButton"       HorizontalOptions="Center" Text="URI Navigate" />
+			<Button x:Name="_popToRootButton" HorizontalOptions="Center" Text="Pop To Root" />
+			<Button x:Name="_popButton"       HorizontalOptions="Center" Text="Pop page" />
+			<Button x:Name="_pushButton"      HorizontalOptions="Center" Text="Push page" />
+			<Button x:Name="_insertButton"    HorizontalOptions="Center" Text="Insert page" />
+			<Button x:Name="_removeButton"    HorizontalOptions="Center" Text="Remove page" />
+		</StackLayout>
+	</ScrollView>
 </ContentPage>

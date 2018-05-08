@@ -1,5 +1,4 @@
-﻿using Android.Content;
-using Android.OS;
+﻿using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
@@ -43,14 +42,18 @@ namespace Xamarin.Forms.Platform.Android
 			get { return _currentTabItem; }
 			set
 			{
+				bool setup = false;
 				if (_currentTabItem != null)
 				{
 					UnhookTabEvents(_currentTabItem);
+					setup = true;
 				}
 				_currentTabItem = value;
-				if (_currentTabItem != null)
+				if (value != null)
 				{
-					HookTabEvents(_currentTabItem);
+					HookTabEvents(value);
+					if (setup)
+						SwitchFragmentStack(value);
 				}
 			}
 		}
@@ -67,30 +70,7 @@ namespace Xamarin.Forms.Platform.Android
 
 			_rootFragment = new ShellItemRenderer(_shellContext) { ShellItem = _shellItem };
 
-			var stack = CurrentTabItem.Stack;
-			if (stack.Count > 1)
-			{
-				_fragmentStack.Add(_rootFragment);
-				for (int i = 1; i < stack.Count; i++)
-				{
-					var page = stack[i];
-					var fragment = CreateFragmentForPage(page);
-					if (i == stack.Count - 1)
-					{
-						// last page actually push it
-						PushFragment(fragment.Fragment, false);
-					}
-					else
-					{
-						// add to the stack
-						_fragmentStack.Add(fragment.Fragment);
-					}
-				}
-			}
-			else
-			{
-				PushFragment(_rootFragment, false);
-			}
+			SetupFragmentStack(CurrentTabItem);
 
 			return _navigationTarget;
 		}
@@ -125,6 +105,19 @@ namespace Xamarin.Forms.Platform.Android
 			((IShellTabItemController)shellTabItem).NavigationRequested += OnNavigationRequested;
 		}
 
+		protected virtual void OnInsertRequested(Page page, Page beforePage)
+		{
+			var fragment = CreateFragmentForPage(page);
+			var stack = CurrentTabItem.Stack;
+			int i = 0;
+			for (; i < stack.Count; i++)
+			{
+				if (stack[i] == page)
+					break;
+			}
+			_fragmentStack.Insert(i, fragment.Fragment);
+		}
+
 		protected virtual Task<bool> OnPopRequested(bool animated)
 		{
 			return PopFragment(animated);
@@ -132,7 +125,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		protected virtual Task<bool> OnPopToRootRequested(bool animated)
 		{
-			// The general idea here is to clear out all the fragments between the current fragment and the 
+			// The general idea here is to clear out all the fragments between the current fragment and the
 			// root one, and then call OnPopRequested to perform the final pop. Its like doing a remove page on
 			// everything in the middle.
 
@@ -160,9 +153,7 @@ namespace Xamarin.Forms.Platform.Android
 		protected virtual void OnShellItemPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == ShellItem.CurrentItemProperty.PropertyName)
-			{
 				CurrentTabItem = _shellItem.CurrentItem;
-			}
 		}
 
 		protected virtual Task<bool> PopFragment(bool animated = true)
@@ -279,17 +270,65 @@ namespace Xamarin.Forms.Platform.Android
 				case Internals.NavigationRequestType.Push:
 					e.Task = OnPushRequested(e.Page, e.Animated);
 					break;
+
 				case Internals.NavigationRequestType.Pop:
 					e.Task = OnPopRequested(e.Animated);
 					break;
+
 				case Internals.NavigationRequestType.PopToRoot:
 					e.Task = OnPopToRootRequested(e.Animated);
 					break;
+
 				case Internals.NavigationRequestType.Insert:
+					OnInsertRequested(e.Page, e.BeforePage);
 					break;
+
 				case Internals.NavigationRequestType.Remove:
 					break;
 			}
+		}
+
+		private void SetupFragmentStack(ShellTabItem tabItem, bool pushRoot = true)
+		{
+			var stack = tabItem.Stack;
+			if (stack.Count > 1 || !pushRoot)
+			{
+				_fragmentStack.Add(_rootFragment);
+				for (int i = 1; i < stack.Count; i++)
+				{
+					var page = stack[i];
+					var fragment = CreateFragmentForPage(page);
+					if (i == stack.Count - 1)
+					{
+						// last page actually push it
+						PushFragment(fragment.Fragment, false);
+					}
+					else
+					{
+						// add to the stack
+						_fragmentStack.Add(fragment.Fragment);
+					}
+				}
+			}
+			else
+			{
+				PushFragment(_rootFragment, false);
+			}
+		}
+
+		private void SwitchFragmentStack(ShellTabItem tabItem)
+		{
+			var trans = ChildFragmentManager.BeginTransaction();
+			for (int i = 1; i < _fragmentStack.Count; i++)
+			{
+				var frag = _fragmentStack[i];
+				trans.Remove(frag);
+			}
+			trans.Show(_rootFragment);
+			trans.CommitAllowingStateLoss();
+
+			_fragmentStack.Clear();
+			SetupFragmentStack(tabItem, false);
 		}
 	}
 }

@@ -65,6 +65,8 @@ namespace Xamarin.Forms.Controls
 			_navButton.Clicked += NavClicked;
 			_queryButton.Clicked += QueryClicked;
 			_toggleButton.Clicked += ToggleClicked;
+			_removeButton.Clicked += RemovedClicked;
+			_insertButton.Clicked += InsertClicked;
 		}
 
 		public string Text
@@ -75,6 +77,19 @@ namespace Xamarin.Forms.Controls
 				_text = value;
 				_mainLabel.Text = _text;
 			}
+		}
+
+		private void RemovedClicked(object sender, EventArgs e)
+		{
+			var stack = Navigation.NavigationStack;
+
+			var page = stack[stack.Count - 2];
+			Navigation.RemovePage(page);
+		}
+
+		private void InsertClicked(object sender, EventArgs e)
+		{
+			Navigation.InsertPageBefore(new ShellContent(), this);
 		}
 
 		private void ToggleClicked(object sender, EventArgs e)
@@ -107,7 +122,10 @@ namespace Xamarin.Forms.Controls
 
 		private async void PushClicked(object sender, EventArgs e)
 		{
-			await Navigation.PushAsync(new ShellContent());
+			await Navigation.PushAsync(new ShellContent()
+			{
+				Text = Text + "1"
+			});
 		}
 	}
 }
