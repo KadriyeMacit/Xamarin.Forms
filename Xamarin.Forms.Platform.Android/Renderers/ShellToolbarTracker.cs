@@ -174,7 +174,7 @@ namespace Xamarin.Forms.Platform.Android
 			FileImageSource icon = toolBarItem.Icon;
 			if (!string.IsNullOrEmpty(icon))
 			{
-				Drawable iconDrawable = context.GetFormsDrawable(icon);
+				Drawable iconDrawable = context.GetFormsDrawable(icon).GetConstantState().NewDrawable().Mutate();
 				iconDrawable.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
 				if (iconDrawable != null)
 				{
@@ -248,7 +248,6 @@ namespace Xamarin.Forms.Platform.Android
 					{
 						button.SetColorFilter(TintColor.ToAndroid(Color.White), PorterDuff.Mode.SrcAtop);
 					}
-
 				}
 			}
 		}

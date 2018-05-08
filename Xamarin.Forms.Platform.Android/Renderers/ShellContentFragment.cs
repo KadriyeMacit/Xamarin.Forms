@@ -40,6 +40,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		public Fragment Fragment => this;
 
+
 		public override AndroidAnimation OnCreateAnimation(int transit, bool enter, int nextAnim)
 		{
 			var result = base.OnCreateAnimation(transit, enter, nextAnim);
@@ -52,11 +53,18 @@ namespace Xamarin.Forms.Platform.Android
 			if (result == null)
 				return result;
 
-			result.SetAnimationListener(this);
-			var animSet = new AnimationSet(true);
-			animSet.AddAnimation(result);
+			// This is very strange what we are about to do. For whatever reason if you take this animation
+			// and wrap it into an animation set it will have a 1 frame glitch at the start where the
+			// fragment shows at the final position. That sucks. So instead we reach into the returned
+			// set and hook up to the first item. This means any animation we use depends on the first item
+			// finishing at the end of the animation.
 
-			return animSet;
+			if (result is AnimationSet set)
+			{
+				set.Animations[0].SetAnimationListener(this);
+			}
+
+			return result;
 		}
 
 		public override AView OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -67,6 +75,7 @@ namespace Xamarin.Forms.Platform.Android
 			}
 
 			_root = inflater.Inflate(Resource.Layout.ShellContent, null).JavaCast<CoordinatorLayout>();
+
 			var scrollview = _root.FindViewById<NestedScrollView>(Resource.Id.shellcontent_scrollview);
 			var toolbar = _root.FindViewById<Toolbar>(Resource.Id.shellcontent_toolbar);
 

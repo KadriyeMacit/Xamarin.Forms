@@ -53,12 +53,11 @@ namespace Xamarin.Forms.Platform.Android
 
 		void IVisualElementRenderer.SetLabelFor(int? id)
 		{
-			
 		}
 
 		void IVisualElementRenderer.UpdateLayout()
 		{
-			_flyoutRenderer.AndroidView.Layout(0, 0, 
+			_flyoutRenderer.AndroidView.Layout(0, 0,
 				(int)AndroidContext.ToPixels(Element.Width), (int)AndroidContext.ToPixels(Element.Height));
 		}
 		#endregion IVisualElementRenderer
@@ -67,7 +66,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		Shell IShellContext.Shell => Element;
 
-		Context IShellContext.AndroidContext => _androidContext;
+		Context IShellContext.AndroidContext => AndroidContext;
 
 		IShellFlyoutContentRenderer IShellContext.CreateShellFlyoutContentRenderer()
 		{
@@ -99,18 +98,17 @@ namespace Xamarin.Forms.Platform.Android
 		private event EventHandler<VisualElementChangedEventArgs> _elementChanged;
 
 		private bool _disposed = false;
-		private readonly Context _androidContext;
 		private IShellFlyoutRenderer _flyoutRenderer;
 		private FrameLayout _frameLayout;
 
 		public ShellRenderer(Context context)
 		{
-			_androidContext = context;
+			AndroidContext = context;
 		}
 
 		protected Shell Element { get; private set; }
 
-		protected Context AndroidContext => _androidContext;
+		protected Context AndroidContext { get; }
 
 		private FragmentManager FragmentManager => ((FormsAppCompatActivity)AndroidContext).SupportFragmentManager;
 
@@ -186,7 +184,7 @@ namespace Xamarin.Forms.Platform.Android
 			if (tab == null)
 				tab = item.CurrentItem;
 			var state = ((IShellController)Element).GetNavigationState(item, tab);
-			await Element.GoToAsync(state);
+			await Element.GoToAsync(state).ConfigureAwait(false);
 		}
 
 		private void OnFlyoutItemSelected(object sender, ElementSelectedEventArgs e)

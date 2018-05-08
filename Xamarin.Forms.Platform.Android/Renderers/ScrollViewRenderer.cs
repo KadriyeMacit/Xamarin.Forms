@@ -223,7 +223,7 @@ namespace Xamarin.Forms.Platform.Android
 			base.OnLayout(changed, left, top, right, bottom);
 			if (_view.Content != null && _hScrollView != null)
 				_hScrollView.Layout(0, 0, right - left, Math.Max(bottom - top, (int)Context.ToPixels(_view.Content.Height)));
-			else if(_view.Content != null && requestContainerLayout)
+			else if (_view.Content != null && requestContainerLayout)
 				_container?.RequestLayout();
 		}
 

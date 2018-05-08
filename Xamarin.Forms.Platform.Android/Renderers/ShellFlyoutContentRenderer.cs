@@ -65,11 +65,6 @@ namespace Xamarin.Forms.Platform.Android
 			}
 		}
 
-		protected override void OnLayout(bool changed, int left, int top, int right, int bottom)
-		{
-			base.OnLayout(changed, left, top, right, bottom);
-		}
-
 		private void BuildMenu()
 		{
 			_lookupTable.Clear();
@@ -151,10 +146,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		private async void SetMenuItemIcon(IMenuItem menuItem, ImageSource source)
 		{
-			var handler = Internals.Registrar.Registered.GetHandlerForObject<IImageSourceHandler>(source);
-			var icon = await handler.LoadImageAsync(source, Context);
-			var drawable = new BitmapDrawable(icon);
-
+			var drawable = await Context.GetFormsDrawable(source);
 			menuItem.SetIcon(drawable);
 		}
 	}

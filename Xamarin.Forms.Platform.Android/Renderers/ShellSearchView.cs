@@ -67,10 +67,10 @@ namespace Xamarin.Forms.Platform.Android
 			return true;
 		}
 
-		protected async virtual Task<Bitmap> LoadImage(ImageSource source)
+		protected virtual Task<Bitmap> LoadImage(ImageSource source)
 		{
 			var handler = Registrar.Registered.GetHandlerForObject<IImageSourceHandler>(source);
-			return await handler.LoadImageAsync(source, Context);
+			return handler.LoadImageAsync(source, Context);
 		}
 
 		protected virtual void LoadView(SearchHandler searchHandler)
@@ -82,8 +82,10 @@ namespace Xamarin.Forms.Platform.Android
 			var placeholder = searchHandler.Placeholder;
 
 			var context = Context;
-			_cardView = new CardView(context);
-			_cardView.LayoutParameters = new LayoutParams(LP.MatchParent, LP.MatchParent);
+			_cardView = new CardView(context)
+			{
+				LayoutParameters = new LayoutParams(LP.MatchParent, LP.MatchParent)
+			};
 
 			var linearLayout = new LinearLayout(context)
 			{
@@ -233,23 +235,6 @@ namespace Xamarin.Forms.Platform.Android
 			return result;
 		}
 
-		private void OnPlaceholderSet(string value)
-		{
-			if (_textBlock == null)
-				return;
-			if (_textBlock.Hint != value)
-				_textBlock.Hint = value;
-		}
-
-		private void OnQuerySet(string value)
-		{
-			if (_textBlock == null)
-				return;
-			if (_textBlock.Text != value)
-				_textBlock.Text = value;
-			UpdateClearButtonState();
-		}
-
 		private void OnTextBlockItemClicked(object sender, AdapterView.ItemClickEventArgs e)
 		{
 			var index = e.Position;
@@ -264,7 +249,7 @@ namespace Xamarin.Forms.Platform.Android
 		private async void SetImage(ImageButton button, ImageSource image, int defaultValue)
 		{
 			if (image != null)
-				button.SetImageBitmap(await LoadImage(image));
+				button.SetImageBitmap(await LoadImage(image).ConfigureAwait(false));
 			else if (defaultValue > 0)
 				button.SetImageResource(defaultValue);
 			else
@@ -299,16 +284,20 @@ namespace Xamarin.Forms.Platform.Android
 				base.Draw(canvas);
 
 				// Step 1: Clip out the top shadow that was drawn as it wont look right when ligned up
-				var paint = new Paint();
-				paint.Color = AColor.Black;
+				var paint = new Paint
+				{
+					Color = AColor.Black
+				};
 				paint.SetXfermode(new PorterDuffXfermode(PorterDuff.Mode.Clear));
 
 				canvas.DrawRect(0, -100, canvas.Width, 0, paint);
 
 				// Step 2: Draw separator line
 
-				paint = new Paint();
-				paint.Color = AColor.LightGray;
+				paint = new Paint
+				{
+					Color = AColor.LightGray
+				};
 				canvas.DrawLine(0, 0, canvas.Width, 0, paint);
 			}
 		}
@@ -321,8 +310,10 @@ namespace Xamarin.Forms.Platform.Android
 			{
 				var width = Bounds.Width();
 				var height = Bounds.Height();
-				var paint = new Paint();
-				paint.Color = Color.White.ToAndroid();
+				var paint = new Paint
+				{
+					Color = Color.White.ToAndroid()
+				};
 
 				canvas.DrawRect(0, 0, width, height, paint);
 

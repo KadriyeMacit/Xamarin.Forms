@@ -18,6 +18,17 @@ namespace Xamarin.Forms.Platform.Android
 
 		public static Type ResourceClass { get; set; }
 
+		internal static async Task<Drawable> GetFormsDrawable(this Context context, ImageSource imageSource)
+		{
+			if (imageSource is FileImageSource fileSource)
+				return context.GetFormsDrawable(fileSource);
+
+			var handler = Registrar.Registered.GetHandlerForObject<IImageSourceHandler>(imageSource);
+			var icon = await handler.LoadImageAsync(imageSource, context);
+			var drawable = new BitmapDrawable(icon);
+			return drawable;
+		}
+
 		internal static Drawable GetFormsDrawable(this Context context, FileImageSource fileImageSource)
 		{
 			var file = fileImageSource.File;
