@@ -408,7 +408,7 @@ namespace Xamarin.Forms
 		{
 			base.OnChildAdded(child);
 
-			if (child is ShellItem shellItem && CurrentItem == null)
+			if (child is ShellItem shellItem && CurrentItem == null && !(child is ShellItem.MenuShellItem))
 			{
 				SetValueFromRenderer(CurrentItemProperty, shellItem);
 			}
